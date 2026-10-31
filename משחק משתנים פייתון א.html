@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>תרגול משתנים בפייתון</title>
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --accent: #ec4899;
+      --card-bg: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --correct: #10b981;
+      --wrong: #ef4444;
+      --warning: #f59e0b;
+      --whatsapp: #25d366;
+    }
+    
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; 
+    }
+    
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: hidden;
+      direction: rtl;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #fdf4ff 0%, #ede9fe 100%);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+    
+    .game-wrapper {
+      width: 100%;
+      max-width: 490px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 14px 12px;
+      box-shadow: 0 10px 28px rgba(124, 58, 237, 0.12);
+      margin: auto;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 2px dashed #ede9fe;
+      padding-bottom: 8px;
+      gap: 8px;
+    }
+    
+    .main-title { 
+      font-size: 1.15rem; 
+      font-weight: 800; 
+      color: #4c1d95; 
+      white-space: nowrap;
+    }
+    
+    .level-badge {
+      background: #f3e8ff;
+      color: var(--primary-dark);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      border: 1px solid #ddd6fe;
+      white-space: nowrap;
+    }
+
+    .beaker-col {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #faf5ff;
+      padding: 5px 10px;
+      border-radius: 12px;
+      border: 1.5px solid #ede9fe;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+    
+    .beaker-col h4 { 
+      font-size: 0.8rem; 
+      color: var(--primary-dark); 
+      font-weight: 700; 
+      margin: 0;
+      white-space: nowrap;
+    }
+    
+    .glass {
+      width: 32px;
+      height: 42px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 3px solid #a78bfa;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    
+    .liquid {
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 0%;
+      background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+      transition: height 0.4s ease;
+    }
+    
+    .glass-label { 
+      font-size: 0.8rem; 
+      font-weight: 700; 
+      color: var(--primary-dark); 
+      white-space: nowrap;
+    }
+    
+    .question-title { 
+      font-size: 0.96rem; 
+      color: #3b0764; 
+      margin-bottom: 8px; 
+      font-weight: 800; 
+      text-align: right;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    
+    .code-box {
+      direction: ltr;
+      text-align: center;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 1.2rem;
+      padding: 12px 10px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      border-right: 5px solid var(--accent);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      min-height: 65px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .input-section { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 7px; 
+      margin-bottom: 10px; 
+      width: 100%;
+    }
+    
+    .answer-input {
+      width: 100%;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 10px;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      outline: none;
+      color: #1e293b;
+      font-family: 'Consolas', monospace;
+      background: #ffffff;
+      transition: all 0.2s;
+    }
+    
+    .answer-input:focus { 
+      border-color: var(--primary); 
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15); 
+    }
+    
+    .answer-input.correct { 
+      border-color: var(--correct) !important; 
+      background: #f0fdf4 !important; 
+      color: #166534 !important; 
+    }
+    
+    .answer-input.wrong { 
+      border-color: var(--wrong) !important; 
+      background: #fef2f2 !important; 
+      color: #991b1b !important; 
+      animation: shake 0.35s ease; 
+    }
+
+    .answer-input.warning { 
+      border-color: var(--warning) !important; 
+      background: #fffbeb !important; 
+      color: #92400e !important; 
+      animation: shake 0.35s ease; 
+    }
+    
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      padding: 11px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
+      transition: transform 0.1s;
+    }
+    .btn-submit:active { transform: scale(0.98); }
+
+    .choice-section {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .btn-choice {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 6px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-family: 'Consolas', monospace;
+      color: #334155;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+      transition: all 0.15s ease;
+    }
+    .btn-choice:active { transform: scale(0.97); }
+
+    .btn-choice.correct {
+      background: #f0fdf4 !important;
+      border-color: var(--correct) !important;
+      color: #166534 !important; 
+    }
+
+    .btn-choice.wrong {
+      background: #fef2f2 !important;
+      border-color: var(--wrong) !important;
+      color: #991b1b !important; 
+      animation: shake 0.35s ease; 
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .feedback-box {
+      display: none;
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin-top: 4px;
+      text-align: right;
+    }
+    .feedback-box.visible { display: block; }
+    .feedback-box.warning-mode { background: #fffbeb; border: 1.5px solid #fde68a; }
+    .feedback-box.warning-mode h5 { color: #b45309; }
+    .feedback-box.warning-mode p { color: #92400e; }
+    .feedback-box.error-mode { background: #f8fafc; border: 1.5px solid #cbd5e1; }
+    .feedback-box.error-mode h5 { color: #334155; }
+    .feedback-box.error-mode p { color: #475569; }
+
+    .feedback-box h5 { font-size: 0.88rem; margin-bottom: 2px; font-weight: 700; }
+    .feedback-box p { font-size: 0.85rem; line-height: 1.35; }
+    
+    .btn-next {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 6px;
+      display: none;
+    }
+    
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.98);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 12px 14px;
+      z-index: 50;
+      border-radius: 20px;
+      overflow-y: auto;
+      max-height: 100%;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-icon { font-size: 2rem; margin-bottom: 2px; }
+    .modal-overlay h2 { font-size: 1.15rem; color: #4c1d95; margin-bottom: 2px; font-weight: 800; line-height: 1.25; }
+    .modal-overlay p { color: var(--text-muted); font-size: 0.82rem; line-height: 1.3; margin-bottom: 6px; max-width: 310px; }
+
+    /* בועת דיבור יפהפייה עם דמות מרחפת */
+    .speech-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0 10px 0;
+      width: 100%;
+      max-width: 320px;
+    }
+    
+    .speech-avatar {
+      font-size: 2.1rem;
+      flex-shrink: 0;
+      background: #fdf4ff;
+      border: 2px solid #f0abfc;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(217, 70, 239, 0.2);
+      animation: floatAvatar 2.4s ease-in-out infinite;
+    }
+    
+    @keyframes floatAvatar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    
+    .speech-bubble {
+      position: relative;
+      background: #ffffff;
+      border: 2px solid #e879f9;
+      border-radius: 16px;
+      padding: 8px 12px;
+      color: #86198f;
+      font-size: 0.84rem;
+      font-weight: 800;
+      line-height: 1.35;
+      text-align: right;
+      box-shadow: 0 4px 14px rgba(232, 121, 249, 0.16);
+      flex: 1;
+    }
+    
+    .speech-bubble::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      transform: translateY(-50%);
+      border-width: 6px 0 6px 8px;
+      border-style: solid;
+      border-color: transparent transparent transparent #e879f9;
+      display: block;
+      width: 0;
+    }
+    .speech-bubble::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -5.5px;
+      transform: translateY(-50%);
+      border-width: 5px 0 5px 6px;
+      border-style: solid;
+      border-color: transparent transparent transparent #ffffff;
+      display: block;
+      width: 0;
+    }
+    
+    .speech-tag {
+      display: block;
+      font-size: 0.72rem;
+      color: #c026d3;
+      margin-bottom: 2px;
+      font-weight: 800;
+    }
+    
+    .final-score-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #4c1d95;
+      margin-bottom: 0px;
+    }
+    .final-score { 
+      font-size: 2.2rem; 
+      font-weight: 900; 
+      color: #7c3aed; 
+      margin-bottom: 1px; 
+      line-height: 1.1; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .teacher-instruction-box {
+      background: #fdf2f8;
+      border: 2px dashed #ec4899;
+      border-radius: 10px;
+      padding: 5px 10px;
+      margin-bottom: 8px;
+      color: #9d174d;
+      font-weight: 800;
+      font-size: 0.86rem;
+      width: 100%;
+      max-width: 295px;
+      line-height: 1.3;
+    }
+
+    .final-buttons-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+      max-width: 295px;
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+      color: white;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 3px 8px rgba(37, 211, 102, 0.25);
+      text-decoration: none;
+      width: 100%;
+      transition: transform 0.1s;
+    }
+    .btn-whatsapp:active { transform: scale(0.97); }
+
+    .btn-download-cert {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      color: white;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 3px 8px rgba(14, 165, 233, 0.25);
+      width: 100%;
+      transition: transform 0.1s;
+    }
+    .btn-download-cert:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #db2777 100%);
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(236, 72, 153, 0.25);
+      width: 100%;
+    }
+    .btn-primary:active { transform: scale(0.97); }
+
+    #cert-canvas { display: none; }
+    #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100; }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+  <canvas id="cert-canvas" width="650" height="480"></canvas>
+
+  <div class="game-wrapper">
+    <header>
+      <h1 class="main-title">תרגול משתנים בפייתון</h1>
+      <div class="level-badge" id="level-indicator">שלב 1 מתוך 8</div>
+    </header>
+
+    <div class="beaker-col">
+      <h4>מד התקדמות</h4>
+      <div class="glass">
+        <div class="liquid" id="beaker-liquid"></div>
+      </div>
+      <div class="glass-label" id="glass-label">0/5 טיפות</div>
+    </div>
+
+    <div class="question-title">
+      ❓ <span id="question-prompt">מה יהיה הפלט של הקוד הבא על המסך?</span>
+    </div>
+    
+    <pre class="code-box" id="code-display"></pre>
+    
+    <div class="input-section" id="input-section">
+      <input type="text" id="answer-input" class="answer-input" placeholder="הקלד תשובה כאן..." autocomplete="off">
+      <button class="btn-submit" id="btn-submit" onclick="submitAnswer()">בדיקה ↵</button>
+    </div>
+
+    <div class="choice-section" id="choice-section">
+      <button class="btn-choice" data-val="int" onclick="selectChoice('int', this)">int</button>
+      <button class="btn-choice" data-val="str" onclick="selectChoice('str', this)">str</button>
+      <button class="btn-choice" data-val="float" onclick="selectChoice('float', this)">float</button>
+      <button class="btn-choice" data-val="bool" onclick="selectChoice('bool', this)">bool</button>
+    </div>
+
+    <div class="feedback-box" id="feedback-box">
+      <h5 id="feedback-title">💡 הסבר קצר:</h5>
+      <p id="feedback-text"></p>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">המשך לשאלה הבאה ←</button>
+    </div>
+
+    <!-- מסך פתיחה: שם פרטי ושם משפחה -->
+    <div class="modal-overlay active" id="start-modal">
+      <div class="modal-icon">🐍✨</div>
+      <h2>תרגול משתנים בפייתון</h2>
+      <p>לפני שנתחיל לאתגר את הראש,<br><strong>עליך להקליד שם פרטי ושם משפחה:</strong></p>
+      <div style="width: 100%; max-width: 270px; margin-bottom: 10px;">
+        <input type="text" id="user-name-input" class="answer-input" placeholder="שם פרטי ושם משפחה..." autocomplete="off">
+      </div>
+      <button class="btn-primary" onclick="startGameWithName()">בואו נתחיל! 🚀</button>
+    </div>
+
+    <!-- מסך סיום שלב ביניים עם בועת דיבור מרהיבה -->
+    <div class="modal-overlay" id="level-modal">
+      <div class="modal-icon" id="level-modal-icon">🧪✨</div>
+      <h2 id="level-modal-title">כל הכבוד!</h2>
+      <p id="level-modal-desc">עברת את השלב בהצלחה.</p>
+      
+      <!-- בועת דיבור מעוצבת עם דמות מרחפת -->
+      <div class="speech-container">
+        <div class="speech-avatar">🐍</div>
+        <div class="speech-bubble">
+          <span class="speech-tag">💭 לחישה מפייתון:</span>
+          <span id="motivation-text"></span>
+        </div>
+      </div>
+      
+      <button class="btn-primary" id="level-modal-btn" onclick="startNextLevel()">קדימה לשלב הבא! 🚀</button>
+    </div>
+
+    <!-- מסך סיום סופי -->
+    <div class="modal-overlay" id="final-modal">
+      <h2 id="final-modal-title">סיימת את כל 8 השלבים!</h2>
+      <div class="final-score-title">ציונך במשחק הוא:</div>
+      <div class="final-score" id="final-score-val">100</div>
+      <p id="final-modal-desc">שליטה מלאה בכל סוגי המשתנים, הדריסות והפלטים בפייתון!</p>
+      
+      <div class="teacher-instruction-box">
+        📢 עליך לשלוח את הציון והתעודה למורה בתאל
+      </div>
+
+      <div class="final-buttons-row">
+        <button class="btn-whatsapp" onclick="sendToWhatsApp()">
+          <span>📲</span> שליחת הציון למורה ב-WhatsApp
+        </button>
+
+        <button class="btn-download-cert" onclick="downloadCertificate()">
+          <span>🎓</span> הורדת תמונת תעודה (לשליחה למורה)
+        </button>
+
+        <button class="btn-primary" onclick="restartGame()">רוצה לשחק שוב? 🔄</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TEACHER_PHONE_NUMBER = '972503018533'; 
+
+    let studentName = "אלופ/ה";
+    let finalCalculatedScore = 100;
+    let audioCtx = null;
+
+    // מערך משפטי מוטיבציה מותאם ומובנה - משפט שונה ומיוחד לכל שלב, בלי שום חזרה!
+    const stageMotivationalQuotes = [
+      "זוכרת שלפני שבוע לא ידעת מה זה print? תראי איפה את עכשיו! 🌟",
+      "את קולטת שאת כבר קוראת קוד פייתון ומבינה אותו חלק? אלופה! 🚀",
+      "פייתון הוא בעצם מחשבון-על, ואת זו שמפקדת עליו כמו מקצוענית! 💻✨",
+      "קחי נשימה עמוקה, שלוק מים, וממשיכים לכבוש את השלב הבא! 💧",
+      "ספוילר: המחשב עושה בדיוק מה שאמרת לו לעשות, לא מה שהתכוונת... 🙃",
+      "שיעור שני בסך הכל וכבר חושבת כמו מתכנתת אמיתית? כבוד! 👏",
+      "את במרחק נגיעה מסיום כל המשחק! עוד שלב אחד קטן ואת שם! 🎯"
+    ];
+
+    function playSound(type) {
+      try {
+        if (!audioCtx) {
+          const Cls = window.AudioContext || window.webkitAudioContext;
+          if (Cls) audioCtx = new Cls();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        if (!audioCtx) return;
+        
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+          const notes = [587.33, 880];
+          notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            
+            gain.gain.setValueAtTime(0.001, now + idx * 0.08);
+            gain.gain.linearRampToValueAtTime(0.12, now + idx * 0.08 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.36);
+          });
+        } else if (type === 'warning') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(330, now);
+          osc.frequency.setValueAtTime(260, now + 0.1);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now); osc.stop(now + 0.25);
+        } else if (type === 'wrong') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, now);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now); osc.stop(now + 0.32);
+        } else if (type === 'levelUp') {
+          [523, 659, 783, 1046].forEach((f, i) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.frequency.value = f;
+            g.gain.setValueAtTime(0.09, now + i * 0.08);
+            g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.35);
+            o.start(now + i * 0.08); o.stop(now + i * 0.08 + 0.35);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    const stagesData = [
+      {
+        mode: "input",
+        color: "linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)",
+        prompt: "מה יהיה הפלט של הקוד הבא על המסך?",
+        questions: [
+          { code: "print(10)", ans: "10", exp: "פייתון מדפיס ישירות את המספר 10." },
+          { code: 'print("שלום")', ans: "שלום", exp: "פייתון מדפיס את הטקסט ללא המרכאות." },
+          { code: "print(5 + 3)", ans: "8", exp: "ללא מרכאות, פייתון מחשב: 5 ועוד 3 שווה 8." },
+          { code: 'print("5 + 3")', ans: "5 + 3", exp: "יש מרכאות! לכן מודפס הטקסט 5 + 3 ללא חישוב (וללא המרכאות)." },
+          { code: "print(9 - 4)", ans: "5", exp: "9 פחות 4 שווה 5." }
+        ]
+      },
+      {
+        mode: "input",
+        color: "linear-gradient(180deg, #c084fc 0%, #9333ea 100%)",
+        prompt: "מה יהיה הפלט של הקוד הבא על המסך?",
+        questions: [
+          { code: "x = 5\nprint(x)", ans: "5", exp: "x נכתב ללא מרכאות, לכן מודפס הערך שבתוכו: 5." },
+          { code: 'x = 5\nprint("x")', ans: "x", exp: "האות x במרכאות, לכן מודפסת האות x (ללא מרכאות) ולא המשתנה." },
+          { code: 'name = "דנה"\nprint(name)', ans: "דנה", exp: "המשתנה name מחזיק את דנה ומודפס ללא מרכאות." },
+          { code: 'name = "דנה"\nprint("name")', ans: "name", exp: "המילה name במרכאות ולכן תודפס המילה name." },
+          { code: "num = 100\nprint(num)", ans: "100", exp: "מודפס הערך של המשתנה: 100." }
+        ]
+      },
+      {
+        mode: "input",
+        color: "linear-gradient(180deg, #34d399 0%, #059669 100%)",
+        prompt: "מה יהיה הפלט של הקוד הבא על המסך?",
+        questions: [
+          { code: "a = 4\nb = 2\nprint(a + b)", ans: "6", exp: "4 ועוד 2 שווה 6." },
+          { code: 'x = 10\nprint("x + 5")', ans: "x + 5", exp: "בגלל המרכאות מודפס x + 5 בדיוק כפי שנכתב." },
+          { code: "price = 20\ndiscount = 3\nprint(price - discount)", ans: "17", exp: "20 פחות 3 שווה 17." },
+          { code: "m = 3\nn = 3\nprint(m * n)", ans: "9", exp: "כוכבית היא כפל: 3 כפול 3 שווה 9." },
+          { code: 'a = 8\nprint("a")', ans: "a", exp: "שמנו מרכאות סביב a ולכן מודפסת האות a." }
+        ]
+      },
+      {
+        mode: "input",
+        color: "linear-gradient(180deg, #f472b6 0%, #db2777 100%)",
+        prompt: "מה יהיה הפלט של הקוד הבא על המסך?",
+        questions: [
+          { code: "x = 3\nx = 7\nprint(x)", ans: "7", exp: "הערך 7 דרס את ה-3, וזה מה שמודפס." },
+          { code: "a = 5\nb = a\nprint(b)", ans: "5", exp: "העתקנו מ-a ל-b, לכן ב-b שמור 5." },
+          { code: 'x = 8\nprint("x = 8")', ans: "x = 8", exp: "כל מה שבמרכאות מודפס בדיוק כפי שהוא." },
+          { code: "score = 10\nscore = score + 4\nprint(score)", ans: "14", exp: "10 ועוד 4 שווה 14." },
+          { code: "apples = 6\neaten = 2\nleft = apples - eaten\nprint(left)", ans: "4", exp: "6 פחות 2 שווה 4." }
+        ]
+      },
+      {
+        mode: "input",
+        color: "linear-gradient(180deg, #fb7185 0%, #e11d48 100%)",
+        prompt: "עקוב אחרי המשתנים: מה יהיה הפלט הסופי?",
+        questions: [
+          { code: "x = 2\nx = x * 3\nprint(x)", ans: "6", exp: "2 כפול 3 שווה 6, הערך החדש נדרס ונשמר ב-x." },
+          { code: "a = 10\nb = 20\na = b\nprint(a)", ans: "20", exp: "הערך של b (שהוא 20) נשמר בתוך a ודרס את ה-10." },
+          { code: "x = 1\nx = x + 1\nx = x + 1\nprint(x)", ans: "3", exp: "x עלה ב-1 והפך ל-2, ואז שוב עלה ב-1 והפך ל-3." },
+          { code: 'name = "נועה"\nname = "מאיה"\nprint(name)', ans: "מאיה", exp: 'המחרוזת "מאיה" דרסה לחלוטין את "נועה".' },
+          { code: "a = 5\nb = 2\na = a - b\nprint(a)", ans: "3", exp: "5 פחות 2 שווה 3, והערך נדרס ונשמר בתוך a." }
+        ]
+      },
+      {
+        mode: "input",
+        color: "linear-gradient(180deg, #fbbf24 0%, #d97706 100%)",
+        prompt: "מה יהיה הפלט של הקוד הבא על המסך?",
+        questions: [
+          { code: "temp = 36.6\nprint(temp)", ans: "36.6", exp: "מספר עשרוני (float) שומר על הנקודה: 36.6." },
+          { code: "x = 2.5\ny = 1.5\nprint(x + y)", ans: "4.0", exp: "חיבור float נותן float עם נקודה: 4.0 ולא 4!" },
+          { code: 'price = 9.9\nprint("price")', ans: "price", exp: "מרכאות מדפיסות את המילה price עצמה." },
+          { code: "a = 5.0\nb = 2.0\nprint(a - b)", ans: "3.0", exp: "5.0 פחות 2.0 שווה 3.0." },
+          { code: "score = 10\nbonus = 0.5\nprint(score + bonus)", ans: "10.5", exp: "10 ועוד 0.5 שווה 10.5." }
+        ]
+      },
+      {
+        mode: "choice",
+        color: "linear-gradient(180deg, #2dd4bf 0%, #0f766e 100%)",
+        prompt: "בחר את סוג המשתנה הנכון (הזדמנות אחת בלבד!):",
+        questions: [
+          { code: "age = 15", ans: "int", exp: "15 הוא מספר שלם, לכן סוגו הוא int." },
+          { code: 'name = "דנה"', ans: "str", exp: "טקסט המוקף במרכאות הוא מחרוזת: str." },
+          { code: "temp = 36.6", ans: "float", exp: "מספר עשרוני עם נקודה הוא float." },
+          { code: "is_sunny = True", ans: "bool", exp: "True ללא מרכאות הוא ערך בוליאני אמיתי: bool." },
+          { code: "x = 7 < 6", ans: "bool", exp: "פעולת השוואה (כמו 7 קטן מ-6) מחזירה תמיד ערך True או False, ולכן סוג המשתנה הוא bool!" }
+        ]
+      },
+      {
+        mode: "choice",
+        color: "linear-gradient(180deg, #818cf8 0%, #4338ca 100%)",
+        prompt: "זהירות, מלכודות! בחר את סוג המשתנה:",
+        questions: [
+          { code: 'x = "5"', ans: "str", exp: "מלכודת מרכאות! 5 בתוך מרכאות הוא מחרוזת טקסט (str) ולא מספר!" },
+          { code: 'flag = "True"', ans: "str", exp: "True בתוך מרכאות הוא מחרוזת (str) ולא ערך בוליאני!" },
+          { code: "num = 5.0", ans: "float", exp: "יש נקודה עשרונית (.0), לכן הוא float ולא int!" },
+          { code: 'pi = "3.14"', ans: "str", exp: "3.14 מוקף במרכאות, לכן סוגו הוא מחרוזת str." },
+          { code: "is_valid = False", ans: "bool", exp: "False ללא מרכאות הוא ערך בוליאני אמיתי: bool." }
+        ]
+      }
+    ];
+
+    let currentStages = [];
+    let currentStageIndex = 0;
+    let currentQuestionIndex = 0;
+    let correctAnswersCount = 0;
+    let stageCorrectCount = 0;
+    let answered = false;
+    let attemptsCount = 0;
+
+    const levelIndicator = document.getElementById('level-indicator');
+    const questionPrompt = document.getElementById('question-prompt');
+    const codeDisplay = document.getElementById('code-display');
+    const inputSection = document.getElementById('input-section');
+    const choiceSection = document.getElementById('choice-section');
+    const answerInput = document.getElementById('answer-input');
+    const btnSubmit = document.getElementById('btn-submit');
+    const feedbackBox = document.getElementById('feedback-box');
+    const feedbackTitle = document.getElementById('feedback-title');
+    const feedbackText = document.getElementById('feedback-text');
+    const btnNext = document.getElementById('btn-next');
+    const beakerLiquid = document.getElementById('beaker-liquid');
+    const glassLabel = document.getElementById('glass-label');
+    const startModal = document.getElementById('start-modal');
+    const userNameInput = document.getElementById('user-name-input');
+    const levelModal = document.getElementById('level-modal');
+    const finalModal = document.getElementById('final-modal');
+
+    function startGameWithName() {
+      const inputVal = userNameInput.value.trim();
+      if (inputVal) {
+        studentName = inputVal;
+      }
+      startModal.classList.remove('active');
+      initGame();
+    }
+
+    userNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') startGameWithName();
+    });
+
+    function initGame() {
+      currentStages = stagesData.map(st => ({
+        mode: st.mode,
+        color: st.color,
+        prompt: st.prompt,
+        questions: shuffle(st.questions)
+      }));
+      currentStageIndex = 0;
+      currentQuestionIndex = 0;
+      correctAnswersCount = 0;
+      stageCorrectCount = 0;
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      answered = false;
+      attemptsCount = 0;
+      feedbackBox.className = 'feedback-box';
+      btnNext.style.display = 'none';
+
+      const stage = currentStages[currentStageIndex];
+      const q = stage.questions[currentQuestionIndex];
+
+      levelIndicator.textContent = `שלב ${currentStageIndex + 1} מתוך ${currentStages.length}`;
+      questionPrompt.textContent = stage.prompt;
+      codeDisplay.textContent = q.code;
+      beakerLiquid.style.background = stage.color;
+      updateGlass();
+
+      if (stage.mode === 'choice') {
+        inputSection.style.display = 'none';
+        choiceSection.style.display = 'grid';
+        
+        const choiceBtns = document.querySelectorAll('.btn-choice');
+        choiceBtns.forEach(btn => {
+          btn.disabled = false;
+          btn.className = 'btn-choice';
+        });
+      } else {
+        choiceSection.style.display = 'none';
+        inputSection.style.display = 'flex';
+        answerInput.value = '';
+        answerInput.disabled = false;
+        answerInput.className = 'answer-input';
+        btnSubmit.disabled = false;
+        setTimeout(() => answerInput.focus(), 80);
+      }
+    }
+
+    function updateGlass() {
+      const percentage = (stageCorrectCount / 5) * 100;
+      beakerLiquid.style.height = `${percentage}%`;
+      glassLabel.textContent = `${stageCorrectCount}/5 טיפות`;
+    }
+
+    function selectChoice(chosenVal, btnElement) {
+      if (answered) return;
+      answered = true;
+
+      const choiceBtns = document.querySelectorAll('.btn-choice');
+      choiceBtns.forEach(btn => btn.disabled = true);
+
+      const stage = currentStages[currentStageIndex];
+      const q = stage.questions[currentQuestionIndex];
+
+      const isMatch = (chosenVal.toLowerCase() === q.ans.toLowerCase());
+
+      if (isMatch) {
+        playSound('correct');
+        btnElement.classList.add('correct');
+        stageCorrectCount++;
+        correctAnswersCount++;
+        updateGlass();
+        setTimeout(checkProgress, 750);
+      } else {
+        playSound('wrong');
+        btnElement.classList.add('wrong');
+        
+        choiceBtns.forEach(btn => {
+          if (btn.dataset.val === q.ans) {
+            btn.classList.add('correct');
+          }
+        });
+
+        feedbackBox.className = 'feedback-box visible error-mode';
+        feedbackTitle.textContent = '💡 הסבר:';
+        feedbackText.innerHTML = `התשובה הנכונה היא: <strong>${q.ans}</strong>.<br>${q.exp}`;
+        btnNext.style.display = 'block';
+      }
+    }
+
+    function checkAnswer(user, target) {
+      const u = user.trim();
+      const t = target.trim();
+      
+      if (u.toLowerCase() === t.toLowerCase()) return true;
+
+      const hasQuotesUser = u.includes('"') || u.includes("'");
+      const hasQuotesTarget = t.includes('"') || t.includes("'");
+
+      if (hasQuotesUser !== hasQuotesTarget) {
+        return false;
+      }
+
+      const stripSpaces = s => s.replace(/\s+/g, '').toLowerCase();
+      if (stripSpaces(u) === stripSpaces(t)) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function submitAnswer() {
+      if (answered) return;
+      const userAns = answerInput.value.trim();
+      if (!userAns) return;
+
+      const stage = currentStages[currentStageIndex];
+      const q = stage.questions[currentQuestionIndex];
+
+      const isMatch = checkAnswer(userAns, q.ans);
+
+      if (isMatch) {
+        answered = true;
+        answerInput.disabled = true;
+        btnSubmit.disabled = true;
+        playSound('correct');
+        answerInput.className = 'answer-input correct';
+        stageCorrectCount++;
+        correctAnswersCount++;
+        updateGlass();
+        setTimeout(checkProgress, 750);
+      } else {
+        attemptsCount++;
+        const userHasQuotes = userAns.includes('"') || userAns.includes("'");
+        const targetHasQuotes = q.ans.includes('"') || q.ans.includes("'");
+
+        if (attemptsCount === 1) {
+          playSound('warning');
+          answerInput.className = 'answer-input warning';
+          
+          feedbackBox.className = 'feedback-box visible warning-mode';
+          feedbackTitle.textContent = `⚠️ לא מדויק, ${studentName}! יש לך ניסיון נוסף:`;
+          
+          if (userHasQuotes && !targetHasQuotes) {
+            feedbackText.innerHTML = 'שים לב: פקודת <code>print</code> מדפיסה את הטקסט <strong>ללא המרכאות</strong> על המסך! נסה לתקן.';
+          } else {
+            feedbackText.innerHTML = 'בדוק שוב את שלבי הקוד ונסה להקליד שוב את התשובה.';
+          }
+
+          btnNext.style.display = 'none';
+          answerInput.focus();
+          answerInput.select();
+        } else {
+          answered = true;
+          answerInput.disabled = true;
+          btnSubmit.disabled = true;
+          playSound('wrong');
+          answerInput.className = 'answer-input wrong';
+
+          feedbackBox.className = 'feedback-box visible error-mode';
+          feedbackTitle.textContent = '💡 התשובה הנכונה:';
+          feedbackText.innerHTML = `התשובה הנכונה היא: <strong>${q.ans}</strong>.<br>${q.exp}`;
+          btnNext.style.display = 'block';
+        }
+      }
+    }
+
+    answerInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitAnswer();
+    });
+
+    answerInput.addEventListener('input', () => {
+      if (answerInput.classList.contains('warning')) {
+        answerInput.classList.remove('warning');
+      }
+    });
+
+    function nextQuestion() {
+      checkProgress();
+    }
+
+    function checkProgress() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex >= 5) {
+        if (currentStageIndex === currentStages.length - 1) {
+          showFinalScreen();
+        } else {
+          showStageCompleteModal();
+        }
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function showStageCompleteModal() {
+      const modalIcon = document.getElementById('level-modal-icon');
+      const modalTitle = document.getElementById('level-modal-title');
+      const modalDesc = document.getElementById('level-modal-desc');
+      const modalBtn = document.getElementById('level-modal-btn');
+      const motivationBox = document.getElementById('motivation-text');
+
+      // משפט מוטיבציה שונה וייחודי לכל שלב – מובטח אפס חזרות!
+      const quoteIndex = Math.min(currentStageIndex, stageMotivationalQuotes.length - 1);
+      motivationBox.textContent = stageMotivationalQuotes[quoteIndex];
+
+      if (stageCorrectCount >= 4) {
+        playSound('levelUp');
+        fireConfetti(60);
+        modalIcon.textContent = '🧪✨';
+        modalTitle.textContent = `כל הכבוד, ${studentName}! 🌟`;
+        modalDesc.innerHTML = `הצלחת לענות נכון על <strong>${stageCorrectCount} מתוך 5</strong> שאלות!<br>הכוס התמלאה כמעט לגמרי. מוכנה לאתגר הבא?`;
+        modalBtn.textContent = 'קדימה לשלב הבא! 🚀';
+      } else if (stageCorrectCount === 3) {
+        playSound('levelUp');
+        modalIcon.textContent = '👍';
+        modalTitle.textContent = `עבודה יפה, ${studentName}!`;
+        modalDesc.innerHTML = `הצלחת לענות על <strong>3 מתוך 5</strong> שאלות.<br>התקדמות יפה, בואי נמשיך לשלב הבא!`;
+        modalBtn.textContent = 'נמשיך לשלב הבא 🚀';
+      } else {
+        playSound('warning');
+        modalIcon.textContent = '💪';
+        modalTitle.textContent = `לא נורא, ${studentName}!`;
+        modalDesc.innerHTML = `הצלחת לענות רק על <strong>${stageCorrectCount} מתוך 5</strong> שאלות.<br>כדאי לתרגל שוב את הנושא הזה, בטוח תצליחי יותר בשלב הבא!`;
+        modalBtn.textContent = 'ננסה את השלב הבא 🚀';
+      }
+
+      levelModal.classList.add('active');
+    }
+
+    function startNextLevel() {
+      levelModal.classList.remove('active');
+      currentStageIndex++;
+      currentQuestionIndex = 0;
+      stageCorrectCount = 0;
+      renderQuestion();
+    }
+
+    function showFinalScreen() {
+      playSound('levelUp');
+      fireConfetti(220);
+      const total = currentStages.length * 5;
+      finalCalculatedScore = Math.round((correctAnswersCount / total) * 100);
+      
+      document.getElementById('final-modal-title').textContent = `${studentName}, סיימת את כל 8 השלבים!`;
+      
+      const trophyIcon = finalCalculatedScore > 80 ? ' 🏆' : '';
+      document.getElementById('final-score-val').innerHTML = `<span>${finalCalculatedScore}</span><span>${trophyIcon}</span>`;
+      
+      const descElement = document.getElementById('final-modal-desc');
+      if (finalCalculatedScore >= 85) {
+        descElement.innerHTML = `כל הכבוד ${studentName}! שיחקת אותה! הבנה ושליטה מצוינת בכל סוגי המשתנים והפלטים!`;
+      } else if (finalCalculatedScore >= 60) {
+        descElement.innerHTML = `עבודה טובה ${studentName}! שלטת ברוב המושגים, מומלץ לחזור ולתרגל שוב את השלבים שהיו מאתגרים.`;
+      } else {
+        descElement.innerHTML = `סיימת את המשחק ${studentName}! מומלץ לחזור על החומר ולשחק פעם נוספת כדי לשפר את הציון.`;
+      }
+
+      finalModal.classList.add('active');
+    }
+
+    function sendToWhatsApp() {
+      const msg = `שלום המורה בתאל! סיימתי את תרגול המשתנים בפייתון. 🐍\nהשם שלי: *${studentName}*\nוהציון שקיבלתי הוא: *${finalCalculatedScore} מתוך 100*!`;
+      const url = `https://wa.me/${TEACHER_PHONE_NUMBER}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    function downloadCertificate() {
+      const canvas = document.getElementById('cert-canvas');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+      bgGrad.addColorStop(0, '#fdf4ff');
+      bgGrad.addColorStop(1, '#ede9fe');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#7c3aed';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(12, 12, w - 24, h - 24);
+
+      ctx.strokeStyle = '#ec4899';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(22, 22, w - 44, h - 44);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#4c1d95';
+      ctx.font = 'bold 28px sans-serif';
+      ctx.fillText('🎓 תעודת סיום - תרגול משתנים בפייתון 🐍', w / 2, 70);
+
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '600 16px sans-serif';
+      ctx.fillText('מוענקת בזאת לתלמיד/ה:', w / 2, 125);
+
+      ctx.fillStyle = '#7c3aed';
+      ctx.font = 'bold 36px sans-serif';
+      ctx.fillText(studentName, w / 2, 175);
+
+      ctx.fillStyle = '#1f2937';
+      ctx.font = '18px sans-serif';
+      ctx.fillText('הציון הסופי שהושג במשימה:', w / 2, 235);
+
+      ctx.fillStyle = '#ec4899';
+      ctx.font = 'bold 52px sans-serif';
+      const certTrophy = finalCalculatedScore > 80 ? ' 🏆' : '';
+      ctx.fillText(`${finalCalculatedScore} מתוך 100${certTrophy}`, w / 2, 305);
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('he-IL') + ' בשעה ' + now.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'});
+      ctx.fillStyle = '#4b5563';
+      ctx.font = '15px sans-serif';
+      ctx.fillText(`תאריך הפקה: ${dateStr}`, w / 2, 380);
+
+      const link = document.createElement('a');
+      link.download = `תעודת_פייתון_${studentName}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function restartGame() {
+      finalModal.classList.remove('active');
+      initGame();
+    }
+
+    // קונפטי
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function fireConfetti(count = 70) {
+      const colors = ['#f43f5e', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899'];
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: canvas.width / 2, y: canvas.height * 0.45,
+          vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.7) * 10,
+          size: Math.random() * 8 + 4, color: colors[Math.floor(Math.random() * colors.length)],
+          gravity: 0.25, alpha: 1
+        });
+      }
+    }
+    function updateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += p.gravity; p.alpha -= 0.01;
+        ctx.save(); ctx.globalAlpha = Math.max(p.alpha, 0);
+        ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size);
+        ctx.restore();
+        if (p.alpha <= 0 || p.y > canvas.height) particles.splice(i, 1);
+      }
+      requestAnimationFrame(updateConfetti);
+    }
+    updateConfetti();
+  </script>
+</body>
+</html>
